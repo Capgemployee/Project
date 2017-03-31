@@ -1,0 +1,65 @@
+
+I can display my data in my textbox, dropdownlist after retrieve data from sql database, but when i proceed with my update button, the information edited in the textbox or dropdownlist wouldn't update into the database. I tried to remove the code in page load, and re-key in all the data manually, it can be update. All I want is retrieve data from database and display it in the textbox, and it can be update into the database after make some changes from the textbox. Can someone help me on this? Thanks.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data.SqlClient;
+using System.Configuration;
+using System.Data;
+public partial class UpdateCustomerDetails : System.Web.UI.Page
+{
+
+protected void Page_Load(object sender, EventArgs e)
+{
+    SqlConnection con1 = new SqlConnection("Data Source=USER-PC;Initial Catalog=webservice_database;Integrated Security=True");
+    DataTable dt = new DataTable();
+    con1.Open();
+    SqlDataReader myReader = null;  
+    SqlCommand myCommand = new SqlCommand("select * from customer_registration where username='" + Session["username"] + "'", con1);
+
+    myReader = myCommand.ExecuteReader();
+
+    while (myReader.Read())
+    {
+        TextBoxPassword.Text = (myReader["password"].ToString());
+        TextBoxRPassword.Text = (myReader["retypepassword"].ToString());
+        DropDownListGender.SelectedItem.Text = (myReader["gender"].ToString());
+        DropDownListMonth.Text = (myReader["birth"].ToString());
+        DropDownListYear.Text = (myReader["birth"].ToString());
+        TextBoxAddress.Text = (myReader["address"].ToString());
+        TextBoxCity.Text = (myReader["city"].ToString());
+        DropDownListCountry.SelectedItem.Text = (myReader["country"].ToString());
+        TextBoxPostcode.Text = (myReader["postcode"].ToString());
+        TextBoxEmail.Text = (myReader["email"].ToString());
+        TextBoxCarno.Text = (myReader["carno"].ToString());
+    }
+    con1.Close();
+}
+protected void Button1_Click(object sender, EventArgs e)
+{
+    SqlConnection con = new SqlConnection("Data Source=USER-PC;Initial Catalog=webservice_database;Integrated Security=True");
+    SqlCommand cmd = new SqlCommand("UPDATE customer_registration SET password = @password, retypepassword = @retypepassword, gender = @gender, birth = @birth, address = @address, city = @city, country = @country, postcode = @postcode, email = @email, carno = @carno where username='" + Session["username"] + "'", con);
+    con.Open();
+
+    cmd.Parameters.AddWithValue("@password", TextBoxPassword.Text);
+    cmd.Parameters.AddWithValue("@retypepassword", TextBoxRPassword.Text);
+    cmd.Parameters.AddWithValue("@gender", DropDownListGender.Text);
+    cmd.Parameters.AddWithValue("@birth", DropDownListDay.Text + DropDownListMonth.Text + DropDownListYear.Text);
+    cmd.Parameters.AddWithValue("@address", TextBoxAddress.Text);
+    cmd.Parameters.AddWithValue("@city", TextBoxCity.Text);
+    cmd.Parameters.AddWithValue("@country", DropDownListCountry.Text);
+    cmd.Parameters.AddWithValue("@postcode", TextBoxPostcode.Text);
+    cmd.Parameters.AddWithValue("@email", TextBoxEmail.Text);
+    cmd.Parameters.AddWithValue("@carno", TextBoxCarno.Text);
+
+    cmd.ExecuteNonQuery();
+    con.Close();
+    if (IsPostBack)
+    {
+        Response.Redirect("UpdateSuccess.aspx");
+    }
+}
